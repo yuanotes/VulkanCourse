@@ -8,6 +8,7 @@ project ("VulkanCourse")
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
 include(CPM)
+
 find_package(Vulkan REQUIRED)
 
 file(GLOB SOURCES
@@ -48,3 +49,5 @@ target_link_libraries(
 )
 
 # TODO: 如有需要，请添加测试并安装目标。
+
+include(CompileShaders)
