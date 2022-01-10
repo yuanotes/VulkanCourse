@@ -1,16 +1,15 @@
 #include "VulkanRenderer.h"
 
-
-
 VulkanRenderer::VulkanRenderer()
 {
 }
 
-int VulkanRenderer::init(GLFWwindow * newWindow)
+int VulkanRenderer::init(GLFWwindow *newWindow)
 {
 	window = newWindow;
 
-	try {
+	try
+	{
 		createInstance();
 		createDebugCallback();
 		createSurface();
@@ -19,7 +18,8 @@ int VulkanRenderer::init(GLFWwindow * newWindow)
 		createSwapChain();
 		createGraphicsPipeline();
 	}
-	catch (const std::runtime_error &e) {
+	catch (const std::runtime_error &e)
+	{
 		printf("ERROR: %s\n", e.what());
 		return EXIT_FAILURE;
 	}
@@ -43,7 +43,6 @@ void VulkanRenderer::cleanup()
 	vkDestroyInstance(instance, nullptr);
 }
 
-
 VulkanRenderer::~VulkanRenderer()
 {
 }
@@ -59,11 +58,11 @@ void VulkanRenderer::createInstance()
 	// Most data here doesn't affect the program and is for developer convenience
 	VkApplicationInfo appInfo = {};
 	appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-	appInfo.pApplicationName = "Vulkan App";					// Custom name of the application
-	appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);		// Custom version of the application
-	appInfo.pEngineName = "No Engine";							// Custom engine name
-	appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);			// Custom engine version
-	appInfo.apiVersion = VK_API_VERSION_1_0;					// The Vulkan Version
+	appInfo.pApplicationName = "Vulkan App";							 // Custom name of the application
+	appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0); // Custom version of the application
+	appInfo.pEngineName = "No Engine";										 // Custom engine name
+	appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);			 // Custom engine version
+	appInfo.apiVersion = VK_API_VERSION_1_0;							 // The Vulkan Version
 
 	// Creation information for a VkInstance (Vulkan Instance)
 	VkInstanceCreateInfo createInfo = {};
@@ -71,11 +70,11 @@ void VulkanRenderer::createInstance()
 	createInfo.pApplicationInfo = &appInfo;
 
 	// Create list to hold instance extensions
-	std::vector<const char*> instanceExtensions = std::vector<const char*>();
+	std::vector<const char *> instanceExtensions = std::vector<const char *>();
 
 	// Set up extensions Instance will use
-	uint32_t glfwExtensionCount = 0;				// GLFW may require multiple extensions
-	const char** glfwExtensions;					// Extensions passed as array of cstrings, so need pointer (the array) to pointer (the cstring)
+	uint32_t glfwExtensionCount = 0; // GLFW may require multiple extensions
+	const char **glfwExtensions;		 // Extensions passed as array of cstrings, so need pointer (the array) to pointer (the cstring)
 
 	// Get GLFW extensions
 	glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
@@ -112,7 +111,6 @@ void VulkanRenderer::createInstance()
 		createInfo.ppEnabledLayerNames = nullptr;
 	}
 
-
 	// Create instance
 	VkResult result = vkCreateInstance(&createInfo, nullptr, &instance);
 
@@ -125,12 +123,13 @@ void VulkanRenderer::createInstance()
 void VulkanRenderer::createDebugCallback()
 {
 	// Only create callback if validation enabled
-	if (!validationEnabled) return;
+	if (!validationEnabled)
+		return;
 
 	VkDebugReportCallbackCreateInfoEXT callbackCreateInfo = {};
 	callbackCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;
-	callbackCreateInfo.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT;	// Which validation reports should initiate callback
-	callbackCreateInfo.pfnCallback = debugCallback;												// Pointer to callback function itself
+	callbackCreateInfo.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT; // Which validation reports should initiate callback
+	callbackCreateInfo.pfnCallback = debugCallback;																							// Pointer to callback function itself
 
 	// Create debug callback with custom create function
 	VkResult result = CreateDebugReportCallbackEXT(instance, &callbackCreateInfo, nullptr, &callback);
@@ -147,17 +146,17 @@ void VulkanRenderer::createLogicalDevice()
 
 	// Vector for queue creation information, and set for family indices
 	std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-	std::set<int> queueFamilyIndices = { indices.graphicsFamily, indices.presentationFamily };
+	std::set<int> queueFamilyIndices = {indices.graphicsFamily, indices.presentationFamily};
 
 	// Queues the logical device needs to create and info to do so
 	for (int queueFamilyIndex : queueFamilyIndices)
 	{
 		VkDeviceQueueCreateInfo queueCreateInfo = {};
 		queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-		queueCreateInfo.queueFamilyIndex = queueFamilyIndex;						// The index of the family to create a queue from
-		queueCreateInfo.queueCount = 1;												// Number of queues to create
+		queueCreateInfo.queueFamilyIndex = queueFamilyIndex; // The index of the family to create a queue from
+		queueCreateInfo.queueCount = 1;											 // Number of queues to create
 		float priority = 1.0f;
-		queueCreateInfo.pQueuePriorities = &priority;								// Vulkan needs to know how to handle multiple queues, so decide priority (1 = highest priority)
+		queueCreateInfo.pQueuePriorities = &priority; // Vulkan needs to know how to handle multiple queues, so decide priority (1 = highest priority)
 
 		queueCreateInfos.push_back(queueCreateInfo);
 	}
@@ -165,15 +164,15 @@ void VulkanRenderer::createLogicalDevice()
 	// Information to create logical device (sometimes called "device")
 	VkDeviceCreateInfo deviceCreateInfo = {};
 	deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-	deviceCreateInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());		// Number of Queue Create Infos
-	deviceCreateInfo.pQueueCreateInfos = queueCreateInfos.data();								// List of queue create infos so device can create required queues
-	deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());	// Number of enabled logical device extensions
-	deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions.data();							// List of enabled logical device extensions
+	deviceCreateInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());	 // Number of Queue Create Infos
+	deviceCreateInfo.pQueueCreateInfos = queueCreateInfos.data();														 // List of queue create infos so device can create required queues
+	deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size()); // Number of enabled logical device extensions
+	deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions.data();											 // List of enabled logical device extensions
 
 	// Physical Device Features the Logical Device will be using
 	VkPhysicalDeviceFeatures deviceFeatures = {};
 
-	deviceCreateInfo.pEnabledFeatures = &deviceFeatures;			// Physical Device features Logical Device will use
+	deviceCreateInfo.pEnabledFeatures = &deviceFeatures; // Physical Device features Logical Device will use
 
 	// Create the logical device for the given physical device
 	VkResult result = vkCreateDevice(mainDevice.physicalDevice, &deviceCreateInfo, nullptr, &mainDevice.logicalDevice);
@@ -215,8 +214,7 @@ void VulkanRenderer::createSwapChain()
 
 	// If imageCount higher than max, then clamp down to max
 	// If 0, then limitless
-	if (swapChainDetails.surfaceCapabilities.maxImageCount > 0
-		&& swapChainDetails.surfaceCapabilities.maxImageCount < imageCount)
+	if (swapChainDetails.surfaceCapabilities.maxImageCount > 0 && swapChainDetails.surfaceCapabilities.maxImageCount < imageCount)
 	{
 		imageCount = swapChainDetails.surfaceCapabilities.maxImageCount;
 	}
@@ -224,17 +222,17 @@ void VulkanRenderer::createSwapChain()
 	// Creation information for swap chain
 	VkSwapchainCreateInfoKHR swapChainCreateInfo = {};
 	swapChainCreateInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-	swapChainCreateInfo.surface = surface;														// Swapchain surface
-	swapChainCreateInfo.imageFormat = surfaceFormat.format;										// Swapchain format
-	swapChainCreateInfo.imageColorSpace = surfaceFormat.colorSpace;								// Swapchain colour space
-	swapChainCreateInfo.presentMode = presentMode;												// Swapchain presentation mode
-	swapChainCreateInfo.imageExtent = extent;													// Swapchain image extents
-	swapChainCreateInfo.minImageCount = imageCount;												// Minimum images in swapchain
-	swapChainCreateInfo.imageArrayLayers = 1;													// Number of layers for each image in chain
-	swapChainCreateInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;						// What attachment images will be used as
-	swapChainCreateInfo.preTransform = swapChainDetails.surfaceCapabilities.currentTransform;	// Transform to perform on swap chain images
-	swapChainCreateInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;						// How to handle blending images with external graphics (e.g. other windows)
-	swapChainCreateInfo.clipped = VK_TRUE;														// Whether to clip parts of image not in view (e.g. behind another window, off screen, etc)
+	swapChainCreateInfo.surface = surface;																										// Swapchain surface
+	swapChainCreateInfo.imageFormat = surfaceFormat.format;																		// Swapchain format
+	swapChainCreateInfo.imageColorSpace = surfaceFormat.colorSpace;														// Swapchain colour space
+	swapChainCreateInfo.presentMode = presentMode;																						// Swapchain presentation mode
+	swapChainCreateInfo.imageExtent = extent;																									// Swapchain image extents
+	swapChainCreateInfo.minImageCount = imageCount;																						// Minimum images in swapchain
+	swapChainCreateInfo.imageArrayLayers = 1;																									// Number of layers for each image in chain
+	swapChainCreateInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;											// What attachment images will be used as
+	swapChainCreateInfo.preTransform = swapChainDetails.surfaceCapabilities.currentTransform; // Transform to perform on swap chain images
+	swapChainCreateInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;										// How to handle blending images with external graphics (e.g. other windows)
+	swapChainCreateInfo.clipped = VK_TRUE;																										// Whether to clip parts of image not in view (e.g. behind another window, off screen, etc)
 
 	// Get Queue Family Indices
 	QueueFamilyIndices indices = getQueueFamilies(mainDevice.physicalDevice);
@@ -244,13 +242,12 @@ void VulkanRenderer::createSwapChain()
 	{
 		// Queues to share between
 		uint32_t queueFamilyIndices[] = {
-			(uint32_t)indices.graphicsFamily,
-			(uint32_t)indices.presentationFamily
-		};
+				(uint32_t)indices.graphicsFamily,
+				(uint32_t)indices.presentationFamily};
 
-		swapChainCreateInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;		// Image share handling
-		swapChainCreateInfo.queueFamilyIndexCount = 2;							// Number of queues to share images between
-		swapChainCreateInfo.pQueueFamilyIndices = queueFamilyIndices;			// Array of queues to share between
+		swapChainCreateInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT; // Image share handling
+		swapChainCreateInfo.queueFamilyIndexCount = 2;										 // Number of queues to share images between
+		swapChainCreateInfo.pQueueFamilyIndices = queueFamilyIndices;			 // Array of queues to share between
 	}
 	else
 	{
@@ -305,22 +302,86 @@ void VulkanRenderer::createGraphicsPipeline()
 	// Vertex Stage creation information
 	VkPipelineShaderStageCreateInfo vertexShaderCreateInfo = {};
 	vertexShaderCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-	vertexShaderCreateInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;				// Shader Stage name
-	vertexShaderCreateInfo.module = vertexShaderModule;						// Shader module to be used by stage
-	vertexShaderCreateInfo.pName = "main";									// Entry point in to shader
+	vertexShaderCreateInfo.stage = VK_SHADER_STAGE_VERTEX_BIT; // Shader Stage name
+	vertexShaderCreateInfo.module = vertexShaderModule;				 // Shader module to be used by stage
+	vertexShaderCreateInfo.pName = "main";										 // Entry point in to shader
 
 	// Fragment Stage creation information
 	VkPipelineShaderStageCreateInfo fragmentShaderCreateInfo = {};
 	fragmentShaderCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-	fragmentShaderCreateInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;				// Shader Stage name
-	fragmentShaderCreateInfo.module = fragmentShaderModule;						// Shader module to be used by stage
-	fragmentShaderCreateInfo.pName = "main";									// Entry point in to shader
+	fragmentShaderCreateInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT; // Shader Stage name
+	fragmentShaderCreateInfo.module = fragmentShaderModule;				 // Shader module to be used by stage
+	fragmentShaderCreateInfo.pName = "main";											 // Entry point in to shader
 
 	// Put shader stage creation info in to array
 	// Graphics Pipeline creation info requires array of shader stage creates
-	VkPipelineShaderStageCreateInfo shaderStages[] = { vertexShaderCreateInfo, fragmentShaderCreateInfo };
+	VkPipelineShaderStageCreateInfo shaderStages[] = {vertexShaderCreateInfo, fragmentShaderCreateInfo};
 
 	// CREATE PIPELINE
+	// - Input Vertices
+	VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
+	vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+	vertexInputInfo.vertexAttributeDescriptionCount = 0;       		// Number of vertex attributes
+	vertexInputInfo.pVertexAttributeDescriptions = nullptr;
+	vertexInputInfo.vertexBindingDescriptionCount = 0;       			// Number of vertex bindings
+	vertexInputInfo.pVertexBindingDescriptions = nullptr;
+
+	// - Input Assembly
+
+	VkPipelineInputAssemblyStateCreateInfo inputAssembly = {};
+	inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+	inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+	inputAssembly.primitiveRestartEnable = VK_FALSE;  						// Whether to restart primitive assembly at each new vertex, useful for drawing indexed geometry, like VK_PRIMITIVE_TOPOLOGY_LINE_STRIP
+
+	// - Viewport and Scissor
+	VkViewport viewport = {};
+	viewport.x = 0.0f;
+	viewport.y = 0.0f;
+	viewport.width = (float)swapChainExtent.width;
+	viewport.height = (float)swapChainExtent.height;
+	viewport.minDepth = 0.0f;
+	viewport.maxDepth = 1.0f;
+
+	VkRect2D scissor = {};
+	scissor.offset = {0, 0};
+	scissor.extent = swapChainExtent;
+
+	VkPipelineViewportStateCreateInfo viewportState = {};
+	viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+	viewportState.pViewports = &viewport;
+	viewportState.viewportCount = 1;
+	viewportState.pScissors = &scissor;
+	viewportState.scissorCount = 1;
+
+	// - Dynamic State
+	std::vector<VkDynamicState> dynamicStateEnables = {
+		VK_DYNAMIC_STATE_VIEWPORT,
+		VK_DYNAMIC_STATE_SCISSOR
+	};
+
+	VkPipelineDynamicStateCreateInfo dynamicState = {};
+	dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+	dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStateEnables.size());
+	dynamicState.pDynamicStates = dynamicStateEnables.data();
+
+	// - Rasterizer
+
+	// - Multisampling
+
+	// - Depth and Stencil
+
+	// - Color Blending
+
+
+	// - Pipeline Layout
+
+	// - Render Pass
+
+	// - Subpass
+
+	// - Base Pipeline
+
+	// - Create Graphics Pipeline
 
 	// Destroy Shader Modules, no longer needed after Pipeline created
 	vkDestroyShaderModule(mainDevice.logicalDevice, fragmentShaderModule, nullptr);
@@ -353,7 +414,7 @@ void VulkanRenderer::getPhysicalDevice()
 	}
 }
 
-bool VulkanRenderer::checkInstanceExtensionSupport(std::vector<const char*>* checkExtensions)
+bool VulkanRenderer::checkInstanceExtensionSupport(std::vector<const char *> *checkExtensions)
 {
 	// Need to get number of extensions to create array of correct size to hold extensions
 	uint32_t extensionCount = 0;
@@ -505,7 +566,7 @@ QueueFamilyIndices VulkanRenderer::getQueueFamilies(VkPhysicalDevice device)
 		// Queue can be multiple types defined through bitfield. Need to bitwise AND with VK_QUEUE_*_BIT to check if has required type
 		if (queueFamily.queueCount > 0 && queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
 		{
-			indices.graphicsFamily = i;		// If queue family is valid, then get index
+			indices.graphicsFamily = i; // If queue family is valid, then get index
 		}
 
 		// Check if Queue Family supports presentation
@@ -565,19 +626,18 @@ SwapChainDetails VulkanRenderer::getSwapChainDetails(VkPhysicalDevice device)
 // Best format is subjective, but ours will be:
 // format		:	VK_FORMAT_R8G8B8A8_UNORM (VK_FORMAT_B8G8R8A8_UNORM as backup)
 // colorSpace	:	VK_COLOR_SPACE_SRGB_NONLINEAR_KHR
-VkSurfaceFormatKHR VulkanRenderer::chooseBestSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& formats)
+VkSurfaceFormatKHR VulkanRenderer::chooseBestSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &formats)
 {
 	// If only 1 format available and is undefined, then this means ALL formats are available (no restrictions)
 	if (formats.size() == 1 && formats[0].format == VK_FORMAT_UNDEFINED)
 	{
-		return { VK_FORMAT_R8G8B8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR };
+		return {VK_FORMAT_R8G8B8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR};
 	}
 
 	// If restricted, search for optimal format
 	for (const auto &format : formats)
 	{
-		if ((format.format == VK_FORMAT_R8G8B8A8_UNORM || format.format == VK_FORMAT_B8G8R8A8_UNORM)
-			&& format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
+		if ((format.format == VK_FORMAT_R8G8B8A8_UNORM || format.format == VK_FORMAT_B8G8R8A8_UNORM) && format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
 		{
 			return format;
 		}
@@ -602,7 +662,7 @@ VkPresentModeKHR VulkanRenderer::chooseBestPresentationMode(const std::vector<Vk
 	return VK_PRESENT_MODE_FIFO_KHR;
 }
 
-VkExtent2D VulkanRenderer::chooseSwapExtent(const VkSurfaceCapabilitiesKHR & surfaceCapabilities)
+VkExtent2D VulkanRenderer::chooseSwapExtent(const VkSurfaceCapabilitiesKHR &surfaceCapabilities)
 {
 	// If current extent is at numeric limits, then extent can vary. Otherwise, it is the size of the window.
 	if (surfaceCapabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
@@ -634,20 +694,20 @@ VkImageView VulkanRenderer::createImageView(VkImage image, VkFormat format, VkIm
 {
 	VkImageViewCreateInfo viewCreateInfo = {};
 	viewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-	viewCreateInfo.image = image;											// Image to create view for
-	viewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;						// Type of image (1D, 2D, 3D, Cube, etc)
-	viewCreateInfo.format = format;											// Format of image data
-	viewCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;			// Allows remapping of rgba components to other rgba values
+	viewCreateInfo.image = image;																 // Image to create view for
+	viewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;						 // Type of image (1D, 2D, 3D, Cube, etc)
+	viewCreateInfo.format = format;															 // Format of image data
+	viewCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY; // Allows remapping of rgba components to other rgba values
 	viewCreateInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
 	viewCreateInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
 	viewCreateInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
 
 	// Subresources allow the view to view only a part of an image
-	viewCreateInfo.subresourceRange.aspectMask = aspectFlags;				// Which aspect of image to view (e.g. COLOR_BIT for viewing colour)
-	viewCreateInfo.subresourceRange.baseMipLevel = 0;						// Start mipmap level to view from
-	viewCreateInfo.subresourceRange.levelCount = 1;							// Number of mipmap levels to view
-	viewCreateInfo.subresourceRange.baseArrayLayer = 0;						// Start array level to view from
-	viewCreateInfo.subresourceRange.layerCount = 1;							// Number of array levels to view
+	viewCreateInfo.subresourceRange.aspectMask = aspectFlags; // Which aspect of image to view (e.g. COLOR_BIT for viewing colour)
+	viewCreateInfo.subresourceRange.baseMipLevel = 0;					// Start mipmap level to view from
+	viewCreateInfo.subresourceRange.levelCount = 1;						// Number of mipmap levels to view
+	viewCreateInfo.subresourceRange.baseArrayLayer = 0;				// Start array level to view from
+	viewCreateInfo.subresourceRange.layerCount = 1;						// Number of array levels to view
 
 	// Create image view and return it
 	VkImageView imageView;
@@ -660,13 +720,13 @@ VkImageView VulkanRenderer::createImageView(VkImage image, VkFormat format, VkIm
 	return imageView;
 }
 
-VkShaderModule VulkanRenderer::createShaderModule(const std::vector<char>& code)
+VkShaderModule VulkanRenderer::createShaderModule(const std::vector<char> &code)
 {
 	// Shader Module creation information
 	VkShaderModuleCreateInfo shaderModuleCreateInfo = {};
 	shaderModuleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-	shaderModuleCreateInfo.codeSize = code.size();										// Size of code
-	shaderModuleCreateInfo.pCode = reinterpret_cast<const uint32_t *>(code.data());		// Pointer to code (of uint32_t pointer type)
+	shaderModuleCreateInfo.codeSize = code.size();																	// Size of code
+	shaderModuleCreateInfo.pCode = reinterpret_cast<const uint32_t *>(code.data()); // Pointer to code (of uint32_t pointer type)
 
 	VkShaderModule shaderModule;
 	VkResult result = vkCreateShaderModule(mainDevice.logicalDevice, &shaderModuleCreateInfo, nullptr, &shaderModule);
