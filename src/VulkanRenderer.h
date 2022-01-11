@@ -36,6 +36,7 @@ private:
 	VkQueue presentationQueue;
 	VkSurfaceKHR surface;
 	VkSwapchainKHR swapchain;
+	VkPipelineLayout pipelineLayout;
 	std::vector<SwapchainImage> swapChainImages;
 
 	// - Utility
