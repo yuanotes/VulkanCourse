@@ -20,6 +20,7 @@ int VulkanRenderer::init(GLFWwindow *newWindow)
 		createGraphicsPipeline();
 		createFramebuffers();
 		createCommandPool();
+		createCommandBuffers();
 	}
 	catch (const std::runtime_error &e)
 	{
@@ -557,6 +558,23 @@ void VulkanRenderer::createCommandPool()
 	if (result != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to create graphics command pool!");
+	}
+}
+
+void VulkanRenderer::createCommandBuffers()
+{
+	commandBuffers.resize(swapChainFramebuffers.size());
+
+	VkCommandBufferAllocateInfo allocInfo = {};
+	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	allocInfo.commandPool = graphicsCommandPool;
+	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	allocInfo.commandBufferCount = (uint32_t)commandBuffers.size();
+
+	VkResult result = vkAllocateCommandBuffers(mainDevice.logicalDevice, &allocInfo, commandBuffers.data());
+	if (result != VK_SUCCESS)
+	{
+		throw std::runtime_error("Failed to allocate command buffers!");
 	}
 }
 
