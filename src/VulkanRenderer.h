@@ -41,6 +41,8 @@ private:
 	VkPipelineLayout pipelineLayout;
 	VkPipeline graphicsPipeline;
 	std::vector<SwapchainImage> swapChainImages;
+	std::vector<VkFramebuffer> swapChainFramebuffers;
+	VkCommandPool graphicsCommandPool;
 
 	// - Utility
 	VkFormat swapChainImageFormat;
@@ -55,6 +57,8 @@ private:
 	void createSwapChain();
 	void createRenderPass();
 	void createGraphicsPipeline();
+	void createFramebuffers();
+	void createCommandPool();
 
 	// - Get Functions
 	void getPhysicalDevice();
